@@ -1,493 +1,57 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Mini Terraria-like Sandbox (Scaffold)</title>
-<style>
-  /* --- Page layout --- */
-  :root{
-    --bg:#0b1220;
-    --panel:#0f1724;
-    --accent:#7ee787;
-    --muted:#98a8b6;
-    --card:#0b1220;
-  }
-  html,body{height:100%;margin:0;font-family:Inter, system-ui, Arial, sans-serif;background:linear-gradient(#06101a,#071225);color:#e6f0ff}
-  .app {
-    display:flex;
-    gap:16px;
-    padding:18px;
-    box-sizing:border-box;
-    height:100vh;
-    align-items:stretch;
-  }
-
-  /* Canvas column */
-  .world-column{
-    flex:1 1 auto;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    align-items:center;
-  }
-
-  /* Top bar (title + quick info) */
-  .topbar{
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    color:var(--muted);
-    font-size:14px;
-  }
-  .title{
-    font-weight:700;
-    font-size:16px;
-    color:var(--accent);
-  }
-
-  /* Canvas card */
-  .canvas-card{
-    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
-    border:1px solid rgba(255,255,255,0.03);
-    border-radius:10px;
-    padding:12px;
-    box-shadow: 0 6px 20px rgba(2,8,16,0.6);
-  }
-
-  canvas#world {
-    display:block;
-    background: linear-gradient(#9bdcff 0%, #8cc8ff 40%, #7bd0ff 42%, #6ab2d9 100%);
-    image-rendering: pixelated;
-    width: 100%;
-    height: calc(100vh - 180px);
-    max-height: 760px;
-    border-radius:8px;
-    display:block;
-  }
-
-  /* Sidebar for controls / inventory */
-  .sidebar{
-    width:320px;
-    max-width:38%;
-    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));
-    border-radius:10px;
-    padding:12px;
-    box-sizing:border-box;
-    border:1px solid rgba(255,255,255,0.03);
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  }
-
-  .panel {
-    background: rgba(255,255,255,0.02);
-    border-radius:8px;
-    padding:10px;
-    color:var(--muted);
-    font-size:13px;
-  }
-
-  .controls button {
-    appearance:none;
-    background:#14324a;
-    color:#cfeefa;
-    border:1px solid rgba(255,255,255,0.04);
-    padding:8px 10px;
-    margin-right:8px;
-    border-radius:6px;
-    cursor:pointer;
-    font-weight:600;
-  }
-
-  .controls .small {padding:6px 8px; font-size:13px}
-
-  .legend{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:6px;
-  }
-  .legend .item{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:6px;
-    border-radius:6px;
-    background:rgba(255,255,255,0.01);
-  }
-  .swatch{width:18px;height:18px;border-radius:3px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02)}
-
-  footer.note{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
-
-  /* responsive */
-  @media (max-width:900px){
-    .app{padding:12px;flex-direction:column}
-    .sidebar{width:100%}
-    canvas#world{height:480px}
-  }
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chunked Sandbox — mini Terraria / Minecraft hybrid</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="app">
-    <div class="world-column">
-      <div class="topbar">
-        <div class="title">Mini-Sandbox — terrain + caves + critters</div>
-        <div id="info">Chunks: 1 &nbsp; | &nbsp; Seed: <span id="seedLabel">?</span></div>
+  <div id="ui-root">
+    <header class="topbar">
+      <div class="title">Chunked Sandbox</div>
+      <div class="status" id="status">Seed: <span id="seedLabel">?</span> • Sync: <span id="syncStatus">idle</span></div>
+    </header>
+
+    <main class="main">
+      <div class="canvas-wrap">
+        <canvas id="worldCanvas"></canvas>
       </div>
 
-      <div class="canvas-card" style="width:100%;max-width:1400px">
-        <canvas id="world" width="1200" height="720"></canvas>
-      </div>
-      <footer class="note">This is a scaffold: world gen, trees, ores, animals. Tell me which mechanic to build next (mining, crafting, armor, inventory, physics...)</footer>
-    </div>
+      <!-- Inventory / Hotbar (replaces old sidebar) -->
+      <aside class="inventory" id="inventoryPanel">
+        <div class="inv-title">Inventory</div>
 
-    <aside class="sidebar">
-      <div class="panel">
-        <strong>World Controls</strong>
-        <div style="margin-top:8px" class="controls">
-          <button id="regen">Generate New World</button>
-          <button id="regenSeed" class="small">Random Seed</button>
-          <button id="toggleGrid" class="small">Toggle Grid</button>
-        </div>
-        <div style="margin-top:10px">
-          <label>Width (tiles): <input id="inpW" type="number" value="120" min="40" style="width:80px"/></label>
-        </div>
-        <div style="margin-top:6px">
-          <label>Height (tiles): <input id="inpH" type="number" value="72" min="32" style="width:80px"/></label>
-        </div>
-      </div>
+        <div id="hotbar" class="hotbar"></div>
 
-      <div class="panel">
-        <strong>Legend</strong>
-        <div class="legend">
-          <div class="item"><div class="swatch" style="background:#6aa84f"></div> Grass</div>
-          <div class="item"><div class="swatch" style="background:#9c7440"></div> Dirt</div>
-          <div class="item"><div class="swatch" style="background:#6f6f6f"></div> Stone</div>
-          <div class="item"><div class="swatch" style="background:#2f2f2f"></div> Coal</div>
-          <div class="item"><div class="swatch" style="background:#b87333"></div> Copper</div>
-          <div class="item"><div class="swatch" style="background:#8ad0a7"></div> Leaves</div>
-          <div class="item"><div class="swatch" style="background:#5b3520"></div> Wood</div>
-          <div class="item"><div class="swatch" style="background:#ffe19a"></div> Animal</div>
-        </div>
-      </div>
+        <div class="inv-grid" id="invGrid"></div>
 
-      <div class="panel">
-        <strong>Notes / Next steps</strong>
-        <ul style="margin:8px 0 0 18px;color:var(--muted)">
-          <li>Click "Generate New World" to re-create terrain.</li>
-          <li>Next I can add: mining tools, inventory, crafting recipes, player physics & jumping, armor sets (copper), hostile mobs.</li>
-        </ul>
-      </div>
-    </aside>
+        <div class="crafting">
+          <div class="craft-title">Crafting</div>
+          <div id="craftList" class="craft-list"></div>
+        </div>
+
+        <div class="armor-panel">
+          <div class="armor-title">Armor</div>
+          <div class="armor-slots">
+            <div data-slot="head" class="armor-slot">Head</div>
+            <div data-slot="body" class="armor-slot">Body</div>
+            <div data-slot="legs" class="armor-slot">Legs</div>
+          </div>
+        </div>
+
+        <div class="sync-controls">
+          <button id="btnSaveWorld">Save world now</button>
+          <button id="btnSyncPlayers">Sync players</button>
+        </div>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      Controls: A/D or ←/→ move • W / Space jump • Mouse left mine • I open inventory (not necessary) • Click craft to craft
+    </footer>
   </div>
 
-<script>
-/*
-  Mini sandbox scaffold
-  - Tile types: air, grass, dirt, stone, coal, copper, wood, leaves
-  - Simple surface heightmap using smoothed random walk
-  - Caves generated by random tunneling + smoothing
-  - Trees spawn on grass, animals spawn on surface
-  - Well-commented: extend with mining, inventory, armor, crafting etc.
-*/
-
-(() => {
-  // Config
-  const TILE_SIZE = 10; // px per tile for drawing (not binding)
-  let tilesX = Math.max(40, parseInt(document.getElementById('inpW').value) || 120);
-  let tilesY = Math.max(32, parseInt(document.getElementById('inpH').value) || 72);
-  const tileColors = {
-    air: null,
-    grass:'#6aa84f',
-    dirt:'#9c7440',
-    stone:'#6f6f6f',
-    coal:'#2f2f2f',
-    copper:'#b87333',
-    wood:'#5b3520',
-    leaves:'#8ad0a7',
-    animal:'#ffe19a'
-  };
-
-  let seed = Date.now() % 1000000;
-  document.getElementById('seedLabel').textContent = seed;
-  let showGrid=false;
-
-  // Simple seeded RNG
-  function createRng(s){
-    let x = (s|0) + 0x6D2B79F5;
-    return function(){
-      x = Math.imul(x ^ (x >>> 15), x | 1);
-      x ^= x + Math.imul(x ^ (x >>> 7), x | 61);
-      return ((x ^ (x >>> 14)) >>> 0) / 4294967295;
-    }
-  }
-
-  // Canvas + drawing helpers
-  const canvas = document.getElementById('world');
-  const ctx = canvas.getContext('2d');
-
-  function resizeCanvas(){
-    // adapt canvas pixels to tile map
-    canvas.width = tilesX * TILE_SIZE;
-    canvas.height = tilesY * TILE_SIZE;
-    // visually scale to container width but keep pixelated look via CSS
-    // CSS sets width:100% so it's responsive
-  }
-
-  // World data
-  let world = null; // 2D array [y][x] of tile strings
-  let animals = []; // list of {x,y,type}
-
-  // Generate surface height via smoothed random walk
-  function generateSurface(rng){
-    const heights = new Array(tilesX);
-    let current = Math.floor(tilesY * 0.35) + Math.floor(rng()*6 - 3);
-    for(let x=0;x<tilesX;x++){
-      current += Math.floor(rng()*3 - 1); // random walk small step
-      // clamp and softly follow an average
-      const avg = Math.floor(tilesY * 0.35);
-      current = Math.max(Math.floor(tilesY*0.2), Math.min(tilesY-6, Math.round(current*0.9 + avg*0.1)));
-      heights[x] = current;
-    }
-    // smooth heights 3 passes
-    for(let pass=0;pass<3;pass++){
-      for(let x=1;x<tilesX-1;x++){
-        heights[x] = Math.round((heights[x-1]+heights[x]+heights[x+1])/3);
-      }
-    }
-    return heights;
-  }
-
-  // create empty world
-  function makeEmptyWorld(){
-    const arr = new Array(tilesY);
-    for(let y=0;y<tilesY;y++){
-      arr[y] = new Array(tilesX).fill('air');
-    }
-    return arr;
-  }
-
-  // Fill layers: grass on top, dirt for a few layers, stone below
-  function fillLayers(worldArr, heights, rng){
-    for(let x=0;x<tilesX;x++){
-      const h = heights[x];
-      for(let y=0;y<tilesY;y++){
-        if(y < h) {
-          worldArr[y][x] = 'air';
-        } else if(y === h){
-          worldArr[y][x] = 'grass';
-        } else if(y > h && y < h+4){
-          worldArr[y][x] = 'dirt';
-        } else {
-          worldArr[y][x] = 'stone';
-        }
-      }
-    }
-  }
-
-  // Create caves by random walk tunnels and cellular automata smoothing
-  function carveCaves(worldArr, rng){
-    // random tunnels
-    const tunnels = Math.max(3, Math.floor(tilesX / 20));
-    for(let t=0;t<tunnels;t++){
-      let x = Math.floor(rng() * tilesX);
-      let y = Math.floor((tilesY * 0.5) + rng()*tilesY*0.4);
-      const length = Math.floor(tilesX * (0.8 + rng()*0.4));
-      for(let L=0;L<length;L++){
-        const radius = 1 + Math.floor(rng()*2.2);
-        // carve circle
-        for(let oy=-radius;oy<=radius;oy++){
-          for(let ox=-radius;ox<=radius;ox++){
-            const tx = x+ox, ty = y+oy;
-            if(tx>=0 && tx<tilesX && ty>=0 && ty<tilesY){
-              if(Math.hypot(ox,oy) <= radius+0.3){
-                worldArr[ty][tx] = 'air';
-              }
-            }
-          }
-        }
-        // move direction
-        x += Math.floor(rng()*3 - 1);
-        y += Math.floor(rng()*3 - 1);
-        x = Math.max(1, Math.min(tilesX-2, x));
-        y = Math.max(2, Math.min(tilesY-3, y));
-      }
-    }
-
-    // small cellular automata: convert isolated stone to air and vice versa for smoothing
-    for(let pass=0;pass<2;pass++){
-      const copy = JSON.parse(JSON.stringify(worldArr));
-      for(let y=1;y<tilesY-1;y++){
-        for(let x=1;x<tilesX-1;x++){
-          let stoneNeighbors = 0;
-          for(let oy=-1;oy<=1;oy++){
-            for(let ox=-1;ox<=1;ox++){
-              if(ox===0 && oy===0) continue;
-              if(worldArr[y+oy][x+ox] === 'stone') stoneNeighbors++;
-            }
-          }
-          if(worldArr[y][x] !== 'air' && stoneNeighbors < 2) copy[y][x] = 'air';
-          if(worldArr[y][x] === 'air' && stoneNeighbors > 5) copy[y][x] = 'stone';
-        }
-      }
-      worldArr = copy;
-    }
-    return worldArr;
-  }
-
-  // Place ores into stone pockets
-  function placeOres(worldArr, rng){
-    // coal: common
-    for(let i=0;i<Math.floor(tilesX*tilesY*0.004);i++){
-      const x = Math.floor(rng()*tilesX);
-      const y = Math.floor((tilesY*0.45) + rng()*tilesY*0.5);
-      if(worldArr[y] && worldArr[y][x] === 'stone') worldArr[y][x] = 'coal';
-    }
-    // copper: rarer
-    for(let i=0;i<Math.floor(tilesX*tilesY*0.0012);i++){
-      const x = Math.floor(rng()*tilesX);
-      const y = Math.floor((tilesY*0.55) + rng()*tilesY*0.35);
-      if(worldArr[y] && worldArr[y][x] === 'stone') worldArr[y][x] = 'copper';
-    }
-  }
-
-  // Spawn trees on grass - simple vertical trunk + leaf blob
-  function spawnTrees(worldArr, heights, rng){
-    for(let x=2;x<tilesX-2;x++){
-      if(rng() < 0.08){ // chance of tree at this x
-        const h = heights[x];
-        const groundY = h;
-        if(worldArr[groundY][x] === 'grass' && worldArr[groundY-1][x] === 'air'){
-          const trunkH = 3 + Math.floor(rng()*3);
-          // trunk
-          for(let t=1;t<=trunkH;t++){
-            if(groundY - t >= 0) worldArr[groundY - t][x] = 'wood';
-          }
-          // leaves: blob above trunk
-          const top = groundY - trunkH;
-          for(let lx = -2; lx<=2; lx++){
-            for(let ly = -2; ly<=1; ly++){
-              const tx = x+lx, ty = top + ly;
-              if(tx>=0 && tx<tilesX && ty>=0 && ty<tilesY){
-                if(Math.abs(lx)+Math.abs(ly) < 4 && worldArr[ty][tx] === 'air'){
-                  worldArr[ty][tx] = 'leaves';
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Spawn passive animals on grass
-  function spawnAnimals(worldArr, heights, rng){
-    animals = [];
-    for(let x=1;x<tilesX-1;x++){
-      if(rng() < 0.02){
-        const groundY = heights[x];
-        if(worldArr[groundY][x] === 'grass'){
-          const choice = ['cow','sheep','pig'][Math.floor(rng()*3)];
-          animals.push({x, y: groundY-1, type: choice});
-        }
-      }
-    }
-  }
-
-  // Main generator
-  function generate(seedVal){
-    seed = seedVal|0;
-    document.getElementById('seedLabel').textContent = seed;
-    const rng = createRng(seed);
-    resizeCanvas();
-    world = makeEmptyWorld();
-    const heights = generateSurface(rng);
-    fillLayers(world, heights, rng);
-    world = carveCaves(world, rng);
-    placeOres(world, rng);
-    spawnTrees(world, heights, rng);
-    spawnAnimals(world, heights, rng);
-    draw();
-  }
-
-  // Drawing functions
-  function draw(){
-    const w = canvas.width, h = canvas.height;
-    // clear sky gradient already handled by CSS, but fill backgrounds for tiles
-    ctx.clearRect(0,0,w,h);
-    // draw tiles
-    for(let y=0;y<tilesY;y++){
-      for(let x=0;x<tilesX;x++){
-        const tile = world[y][x];
-        if(tile && tile !== 'air'){
-          const col = tileColors[tile] || '#333';
-          ctx.fillStyle = col;
-          ctx.fillRect(x*TILE_SIZE, y*TILE_SIZE, TILE_SIZE, TILE_SIZE);
-        }
-      }
-    }
-    // animals as rounded squares
-    for(const a of animals){
-      ctx.fillStyle = tileColors['animal'];
-      const px = a.x*TILE_SIZE, py = a.y*TILE_SIZE;
-      ctx.fillRect(px+2, py+2, TILE_SIZE-4, TILE_SIZE-4);
-    }
-
-    // optional grid overlay
-    if(showGrid){
-      ctx.strokeStyle = 'rgba(255,255,255,0.03)';
-      ctx.lineWidth=1;
-      for(let x=0;x<=tilesX;x++){
-        ctx.beginPath(); ctx.moveTo(x*TILE_SIZE,0); ctx.lineTo(x*TILE_SIZE,tilesY*TILE_SIZE); ctx.stroke();
-      }
-      for(let y=0;y<=tilesY;y++){
-        ctx.beginPath(); ctx.moveTo(0,y*TILE_SIZE); ctx.lineTo(tilesX*TILE_SIZE,y*TILE_SIZE); ctx.stroke();
-      }
-    }
-  }
-
-  // hookup UI
-  document.getElementById('regen').addEventListener('click', ()=>{
-    tilesX = Math.max(40, parseInt(document.getElementById('inpW').value) || 120);
-    tilesY = Math.max(32, parseInt(document.getElementById('inpH').value) || 72);
-    generate(seed + Math.floor(Math.random()*10000));
-  });
-  document.getElementById('regenSeed').addEventListener('click', ()=>{
-    const ns = Math.floor(Math.random()*10000000);
-    tilesX = Math.max(40, parseInt(document.getElementById('inpW').value) || 120);
-    tilesY = Math.max(32, parseInt(document.getElementById('inpH').value) || 72);
-    generate(ns);
-  });
-  document.getElementById('toggleGrid').addEventListener('click', ()=>{
-    showGrid = !showGrid; draw();
-  });
-
-  // basic canvas interaction: hover tile info
-  canvas.addEventListener('mousemove', (ev)=>{
-    const rect = canvas.getBoundingClientRect();
-    const cx = Math.floor((ev.clientX - rect.left) / rect.width * canvas.width);
-    const cy = Math.floor((ev.clientY - rect.top) / rect.height * canvas.height);
-    const tx = Math.floor(cx / TILE_SIZE);
-    const ty = Math.floor(cy / TILE_SIZE);
-    let info = `Tile: (${tx},${ty})`;
-    if(world && world[ty] && world[ty][tx]) info += ` — ${world[ty][tx]}`;
-    document.getElementById('info').innerHTML = `Chunks: 1 &nbsp;|&nbsp; Seed: <span id="seedLabelInline">${seed}</span> &nbsp; | &nbsp; ${info}`;
-  });
-
-  canvas.addEventListener('mouseleave', ()=> {
-    document.getElementById('info').innerHTML = `Chunks: 1 &nbsp;|&nbsp; Seed: <span id="seedLabel">${seed}</span>`;
-  });
-
-  // initial generate
-  resizeCanvas();
-  generate(seed);
-
-  // expose some functions to window for quick dev use
-  window.MINI = { regenerate: generate, worldRef: ()=>world, animalsRef: ()=>animals };
-
-})();
-</script>
+  <script src="main.js" defer></script>
 </body>
 </html>
