@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import WorldScene from './scenes/WorldScene';
+import WorldScene from '.src/scenes/WorldScene';
 
 const config: Phaser.Types.Core.GameConfig = {
   type: Phaser.AUTO,
