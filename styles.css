@@ -1,0 +1,42 @@
+:root{
+  --bg:#071225;
+  --panel:#0d1b2a;
+  --accent:#7ee787;
+  --muted:#99a7b5;
+  --tile: 10px;
+}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Arial;background:linear-gradient(#04101a,#071225);color:#e6f0ff}
+#ui-root{display:flex;flex-direction:column;height:100vh}
+.topbar{display:flex;justify-content:space-between;padding:10px 16px;background:linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-bottom:1px solid rgba(255,255,255,0.03)}
+.title{font-weight:700;color:var(--accent)}
+.status{color:var(--muted);font-size:13px}
+
+.main{display:flex;gap:12px;flex:1;padding:12px;align-items:stretch}
+.canvas-wrap{flex:1;background:linear-gradient(#9bdcff 0%, #8cc8ff 40%, #7bd0ff 42%, #6ab2d9 100%);border-radius:8px;padding:8px;box-shadow:0 8px 30px rgba(2,8,16,0.6)}
+canvas#worldCanvas{width:100%;height:calc(100vh - 180px);display:block;border-radius:6px;background:transparent;image-rendering:pixelated;border:1px solid rgba(0,0,0,0.12)}
+
+.inventory{width:320px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.03));padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+.inv-title{font-weight:700;color:var(--accent);margin-bottom:10px}
+.hotbar{display:flex;gap:6px;margin-bottom:10px}
+.hotbar .slot{width:40px;height:40px;border-radius:6px;background:rgba(255,255,255,0.02);display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,0.03)}
+.inv-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;max-height:260px;overflow:auto;margin-bottom:10px}
+.inv-grid .inv-item{padding:8px;border-radius:6px;background:rgba(255,255,255,0.015);font-size:13px;border:1px solid rgba(255,255,255,0.02)}
+.crafting{margin-top:8px}
+.craft-list{display:flex;flex-direction:column;gap:6px}
+.craft-entry{display:flex;justify-content:space-between;align-items:center;padding:8px;border-radius:6px;background:rgba(255,255,255,0.01);border:1px solid rgba(255,255,255,0.02)}
+.craft-entry button{padding:6px 8px;border-radius:6px;background:#14324a;color:#cfeefa;border:none;cursor:pointer}
+.armor-panel{margin-top:8px}
+.armor-slots{display:flex;gap:6px;margin-top:6px}
+.armor-slot{flex:1;padding:12px;border-radius:6px;background:rgba(255,255,255,0.01);text-align:center;border:1px solid rgba(255,255,255,0.02)}
+.sync-controls{display:flex;gap:6px;margin-top:10px}
+.sync-controls button{flex:1;padding:8px;border-radius:6px;border:none;background:#163548;color:#e6f0ff;cursor:pointer}
+
+.footer{padding:10px 16px;color:var(--muted);font-size:13px;border-top:1px solid rgba(255,255,255,0.02)}
+@media (max-width:900px){
+  .main{flex-direction:column}
+  .inventory{width:100%}
+  canvas#worldCanvas{height:360px}
+}
+
