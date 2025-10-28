@@ -3,55 +3,11 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Chunked Sandbox — mini Terraria / Minecraft hybrid</title>
-  <link rel="stylesheet" href="styles.css">
+  <title>Phaser Sandbox — Starter</title>
+  <link rel="stylesheet" href="/src/styles.css" />
 </head>
 <body>
-  <div id="ui-root">
-    <header class="topbar">
-      <div class="title">Chunked Sandbox</div>
-      <div class="status" id="status">Seed: <span id="seedLabel">?</span> • Sync: <span id="syncStatus">idle</span></div>
-    </header>
-
-    <main class="main">
-      <div class="canvas-wrap">
-        <canvas id="worldCanvas"></canvas>
-      </div>
-
-      <!-- Inventory / Hotbar (replaces old sidebar) -->
-      <aside class="inventory" id="inventoryPanel">
-        <div class="inv-title">Inventory</div>
-
-        <div id="hotbar" class="hotbar"></div>
-
-        <div class="inv-grid" id="invGrid"></div>
-
-        <div class="crafting">
-          <div class="craft-title">Crafting</div>
-          <div id="craftList" class="craft-list"></div>
-        </div>
-
-        <div class="armor-panel">
-          <div class="armor-title">Armor</div>
-          <div class="armor-slots">
-            <div data-slot="head" class="armor-slot">Head</div>
-            <div data-slot="body" class="armor-slot">Body</div>
-            <div data-slot="legs" class="armor-slot">Legs</div>
-          </div>
-        </div>
-
-        <div class="sync-controls">
-          <button id="btnSaveWorld">Save world now</button>
-          <button id="btnSyncPlayers">Sync players</button>
-        </div>
-      </aside>
-    </main>
-
-    <footer class="footer">
-      Controls: A/D or ←/→ move • W / Space jump • Mouse left mine • I open inventory (not necessary) • Click craft to craft
-    </footer>
-  </div>
-
-  <script src="main.js" defer></script>
+  <div id="game-container"></div>
+  <script type="module" src="/src/main.ts"></script>
 </body>
 </html>
